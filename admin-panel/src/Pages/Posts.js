@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -13,24 +13,52 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
+import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { db } from "../Firebase/config";
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedPostId, setSelectedPostId] = useState(null);
-  const [newPostTitle, setNewPostTitle] = useState("");
-  const [newPostSlug, setNewPostSlug] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
+  const [count, setCount] = useState(0);
   const navigate = useNavigate();
 
-  const handleAddClick = () => {    
-    navigate("/blog");
-  }
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "blogs"));
+        const count = querySnapshot.size;
+        setCount(count);
+        console.log("Number of documents in collection:", count);
+        const blogs = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          slug: generateSlug(doc.data().title),
+        }));
+        setPosts(blogs);
+      } catch (error) {
+        console.error("Error fetching blogs:", error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const generateSlug = (title) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  };
+
+  const handleAddClick = () => {
+    navigate("/Blog");
+  };
+
   const handleMenuOpen = (event, postId) => {
     setAnchorEl(event.currentTarget);
     setSelectedPostId(postId);
@@ -46,24 +74,17 @@ const Posts = () => {
     handleMenuClose();
   };
 
-  const handleDelete = () => {
-    const updatedPosts = posts.filter((post) => post.id !== selectedPostId);
-    setPosts(updatedPosts);
-    handleMenuClose();
-  };
-
-  const handleAdd = () => {
-    if (newPostTitle && newPostSlug) {
-      const newPost = {
-        id: Date.now(), // Unique ID
-        title: newPostTitle,
-        slug: newPostSlug,
-      };
-      setPosts([...posts, newPost]);
-      setNewPostTitle("");
-      setNewPostSlug("");
-      setIsAdding(false); // Close the form
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, "blogs", id));
+      console.log("Document deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting document: ", error);
     }
+    setPosts(posts.filter((post) => post.id !== id));
+    setCount(count - 1);
+    alert("Post deleted successfully!");
+    handleMenuClose();
   };
 
   return (
@@ -74,6 +95,7 @@ const Posts = () => {
         alignItems="center"
         mb={2}
       >
+        
         <Typography variant="h6" fontWeight="bold">
           Posts
         </Typography>
@@ -85,28 +107,6 @@ const Posts = () => {
           Add
         </Button>
       </Box>
-
-      {isAdding && (
-        <Box mb={2}>
-          <TextField
-            label="Title"
-            fullWidth
-            value={newPostTitle}
-            onChange={(e) => setNewPostTitle(e.target.value)}
-            sx={{ mb: 1 }}
-          />
-          <TextField
-            label="Slug"
-            fullWidth
-            value={newPostSlug}
-            onChange={(e) => setNewPostSlug(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          <Button variant="contained" onClick={handleAdd}>
-            Save Post
-          </Button>
-        </Box>
-      )}
 
       <TableContainer component={Paper}>
         <Table>
@@ -140,8 +140,10 @@ const Posts = () => {
                       open={Boolean(anchorEl) && selectedPostId === post.id}
                       onClose={handleMenuClose}
                     >
-                      <MenuItem onClick={handleEdit}>Edit</MenuItem>
-                      <MenuItem onClick={handleDelete}>Delete</MenuItem>
+                      <MenuItem onClick={() => handleEdit}>Edit</MenuItem>
+                      <MenuItem onClick={() => handleDelete(post.id)}>
+                        Delete
+                      </MenuItem>
                     </Menu>
                   </TableCell>
                 </TableRow>

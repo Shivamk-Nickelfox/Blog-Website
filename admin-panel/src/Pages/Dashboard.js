@@ -1,7 +1,26 @@
 import { Box, Typography, Paper } from "@mui/material";
 import ArticleIcon from "@mui/icons-material/Article";
+import React from "react";
+import { useEffect, useState } from "react";
+import { db } from "../Firebase/config";
+import { collection, getDocs } from "firebase/firestore";
 
-const PostsCard = ({ count }) => {
+const PostsCard = () => {
+  const [postsCount, setPostsCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "blogs"));
+        const count = querySnapshot.size;
+        setPostsCount(count);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
   return (
     <Paper
       elevation={3}
@@ -20,7 +39,7 @@ const PostsCard = ({ count }) => {
         <Typography variant="subtitle2" fontWeight="bold">
           Posts
         </Typography>
-        <Typography variant="h6">{count}</Typography>
+        <Typography variant="h6">{postsCount}</Typography>
       </Box>
     </Paper>
   );

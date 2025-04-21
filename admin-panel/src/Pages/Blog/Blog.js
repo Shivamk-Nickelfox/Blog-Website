@@ -1,21 +1,41 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Button, Box, Typography, IconButton } from "@mui/material";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
-import { db, auth } from "../Firebase/config";
+import { db, auth } from "../../Firebase/config";
+
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
-import FormatBoldIcon from "@mui/icons-material/FormatBold";
-import FormatItalicIcon from "@mui/icons-material/FormatItalic";
-import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
-import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
-import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
-import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
+import {
+  FormatBold as FormatBoldIcon,
+  FormatItalic as FormatItalicIcon,
+  FormatUnderlined as FormatUnderlinedIcon,
+  FormatAlignLeft as FormatAlignLeftIcon,
+  FormatAlignCenter as FormatAlignCenterIcon,
+  FormatAlignRight as FormatAlignRightIcon,
+} from "@mui/icons-material";
 
-const BlogEditor = () => {
+import {
+  Box,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  Typography,
+  IconButton,
+} from "@mui/material";
+
+import {
+  EditorContainer,
+  TitleText,
+  BlogTitleInput,
+  ToolbarBox,
+  EditorContentBox,
+  PublishButton,
+} from "./BlogStyles";
+
+const Blog = () => {
   const [title, setTitle] = useState("");
   const [user, setUser] = useState(null);
 
@@ -25,7 +45,6 @@ const BlogEditor = () => {
       Underline,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
-    content: "<p>Start writing your blog...</p>",
   });
 
   useEffect(() => {
@@ -60,29 +79,28 @@ const BlogEditor = () => {
 
   if (!user) {
     return (
-      <Box sx={{ maxWidth: 600, mx: "auto", mt: 10, textAlign: "center" }}>
+      <EditorContainer>
         <Typography variant="h5">Please login to publish blogs</Typography>
-      </Box>
+      </EditorContainer>
     );
   }
 
   return (
-    <Box sx={{ maxWidth: "800px", mx: "auto", mt: 5 }}>
-      <Typography variant="h4" gutterBottom>
-        Create Blog
-      </Typography>
+    <EditorContainer>
+      <TitleText variant="h4" gutterBottom>
+        Add Blog
+      </TitleText>
 
-      <TextField
+      <BlogTitleInput
         label="Blog Title"
         variant="outlined"
         fullWidth
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        sx={{ mb: 2 }}
       />
 
       {editor && (
-        <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+        <ToolbarBox>
           <IconButton onClick={() => editor.chain().focus().toggleBold().run()}>
             <FormatBoldIcon />
           </IconButton>
@@ -111,25 +129,22 @@ const BlogEditor = () => {
           >
             <FormatAlignRightIcon />
           </IconButton>
-        </Box>
+        </ToolbarBox>
       )}
 
-      <EditorContent
-        editor={editor}
-        style={{
-          border: "1px solid #ccc",
-          borderRadius: 4,
-          minHeight: "300px",
-          padding: 16,
-          marginBottom: 20,
-        }}
-      />
+      <EditorContentBox>
+        <EditorContent editor={editor} />
+      </EditorContentBox>
 
-      <Button variant="contained" color="primary" onClick={handlePublish}>
+      <PublishButton
+        variant="contained"
+        color="primary"
+        onClick={handlePublish}
+      >
         Publish
-      </Button>
-    </Box>
+      </PublishButton>
+    </EditorContainer>
   );
 };
 
-export default BlogEditor;
+export default Blog;

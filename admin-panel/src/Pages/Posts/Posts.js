@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box,
   Typography,
-  Button,
   IconButton,
   Menu,
   MenuItem,
@@ -11,17 +9,28 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
-import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
-import { db } from "../Firebase/config";
+import {
+  collection,
+  getDocs,
+  doc,
+  deleteDoc,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "../../Firebase/config";
+import { RootBox, HeaderBox, AddButton, StyledTableHead } from "./PostsStyles";
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [count, setCount] = useState(0);
@@ -29,11 +38,12 @@ const Posts = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
+      if (!user || !user.uid) return;
       try {
-        const querySnapshot = await getDocs(collection(db, "blogs"));
-        const count = querySnapshot.size;
-        setCount(count);
-        console.log("Number of documents in collection:", count);
+        const postsRef = collection(db, "posts");
+        const q = query(postsRef, where("userId", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+        setCount(querySnapshot.size);
         const blogs = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -44,20 +54,16 @@ const Posts = () => {
         console.error("Error fetching blogs:", error);
       }
     };
-
     fetchPosts();
   }, []);
 
-  const generateSlug = (title) => {
-    return title
+  const generateSlug = (title) =>
+    title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
-  };
 
-  const handleAddClick = () => {
-    navigate("/Blog");
-  };
+  const handleAddClick = () => navigate("/Blog");
 
   const handleMenuOpen = (event, postId) => {
     setAnchorEl(event.currentTarget);
@@ -77,47 +83,40 @@ const Posts = () => {
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "blogs", id));
-      console.log("Document deleted successfully!");
+      setPosts(posts.filter((post) => post.id !== id));
+      setCount((prev) => prev - 1);
+      alert("Post deleted successfully!");
     } catch (error) {
       console.error("Error deleting document: ", error);
     }
-    setPosts(posts.filter((post) => post.id !== id));
-    setCount(count - 1);
-    alert("Post deleted successfully!");
     handleMenuClose();
   };
 
   return (
-    <Box p={2}>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
-      >
-        
+    <RootBox>
+      <HeaderBox>
         <Typography variant="h6" fontWeight="bold">
           Posts
         </Typography>
-        <Button
+        <AddButton
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleAddClick}
         >
           Add
-        </Button>
-      </Box>
+        </AddButton>
+      </HeaderBox>
 
       <TableContainer component={Paper}>
         <Table>
-          <TableHead sx={{ backgroundColor: "#f3f4f6" }}>
+          <StyledTableHead>
             <TableRow>
               <TableCell>Sr.</TableCell>
               <TableCell>Title</TableCell>
               <TableCell>Slug</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
-          </TableHead>
+          </StyledTableHead>
           <TableBody>
             {posts.length === 0 ? (
               <TableRow>
@@ -140,7 +139,7 @@ const Posts = () => {
                       open={Boolean(anchorEl) && selectedPostId === post.id}
                       onClose={handleMenuClose}
                     >
-                      <MenuItem onClick={() => handleEdit}>Edit</MenuItem>
+                      <MenuItem onClick={() => handleEdit()}>Edit</MenuItem>
                       <MenuItem onClick={() => handleDelete(post.id)}>
                         Delete
                       </MenuItem>
@@ -152,7 +151,7 @@ const Posts = () => {
           </TableBody>
         </Table>
       </TableContainer>
-    </Box>
+    </RootBox>
   );
 };
 

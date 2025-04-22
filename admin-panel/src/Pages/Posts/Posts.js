@@ -40,16 +40,18 @@ const Posts = () => {
     const fetchPosts = async () => {
       if (!user || !user.uid) return;
       try {
-        const postsRef = collection(db, "posts");
-        const q = query(postsRef, where("userId", "==", user.uid));
+        const postsRef = collection(db, "blogs");
+        const q = query(postsRef, where("authorId", "==", user.uid));
         const querySnapshot = await getDocs(q);
-        setCount(querySnapshot.size);
+        setCount(querySnapshot.docs.length);
         const blogs = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
           slug: generateSlug(doc.data().title),
         }));
         setPosts(blogs);
+
+        console.log("Fetched posts: ", blogs);
       } catch (error) {
         console.error("Error fetching blogs:", error);
       }

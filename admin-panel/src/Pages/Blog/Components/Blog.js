@@ -3,7 +3,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
-import { db, auth } from "../../Firebase/config";
+import { db, auth } from "../../../Firebase/config";
 
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";

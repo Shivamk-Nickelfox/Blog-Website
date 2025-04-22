@@ -12,7 +12,16 @@ const PostsCard = () => {
     const fetchPosts = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "blogs"));
-        const count = querySnapshot.size;
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+          console.error("User not found in local storage");
+          return;
+        }
+        // Filter posts by authorId if needed
+        const filteredPosts = querySnapshot.docs.filter(
+          (doc) => doc.data().authorId === user.uid
+        );
+        const count = filteredPosts.length;
         setPostsCount(count);
       } catch (error) {
         console.error("Error fetching posts:", error);

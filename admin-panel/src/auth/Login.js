@@ -16,6 +16,7 @@ export default function Login() {
       const result = await signInWithPopup(auth, provider);
       const { displayName, email, photoURL, uid } = result.user;
       const userData = { displayName, email, photoURL, uid };
+      console.log("userData", userData);
       setUser(userData);
       dispatch(login(userData));
       console.log("user logged in", store.getState());
@@ -35,7 +36,17 @@ export default function Login() {
     <Button
       variant="contained"
       onClick={handleLogin}
-      sx={{ textTransform: "none" }}
+      sx={{
+        textTransform: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "200px",
+        height: "50px",
+        backgroundColor: "#4285F4",
+        color: "#fff",
+        "&:hover": { backgroundColor: "#357ae8" },
+      }}
     >
       Sign in with Google
     </Button>

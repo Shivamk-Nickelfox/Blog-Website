@@ -13,6 +13,7 @@ const PostsCard = () => {
       try {
         const querySnapshot = await getDocs(collection(db, "blogs"));
         const user = JSON.parse(localStorage.getItem("user"));
+        console.log("User from local storage:", user);
         if (!user) {
           console.error("User not found in local storage");
           return;

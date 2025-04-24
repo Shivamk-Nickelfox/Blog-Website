@@ -57,8 +57,11 @@ const Blog = () => {
   };
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" gutterBottom>
+    <Box p={3} sx={{
+      bgcolor: 'background.paper',
+      color:   'text.primary'
+    }}>
+      <Typography variant="h4" gutterBottom >
         Add Blog
       </Typography>
       <TextField
@@ -68,7 +71,10 @@ const Blog = () => {
         margin="normal"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        sx={{ backgroundColor: "#f5f3ff", borderRadius: 2 }}
+        sx={{
+          bgcolor:        'secondary.light',
+          borderRadius:   2
+        }}
       />
       <BlogToolbar editor={editor} />
       <Box border={1} p={2} sx={{ minHeight: 200, mb: 2 }}>

@@ -40,8 +40,8 @@ const Header = () => {
         </LogoText>
 
         <NavLinks>
-          <Button color="inherit">Home</Button>
-          <Button onClick={() => navigate("/contact")} color="inherit">
+          <Button color="primary">Home</Button>
+          <Button onClick={() => navigate("/contact")} color="primary">
             Contact Us
           </Button>
         </NavLinks>

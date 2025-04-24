@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initilialState = {
+const initialState = {
   displayName: "",
   email: "",
   photoURL: "",
@@ -8,18 +8,11 @@ const initilialState = {
   postcount: 0,
 };
 
-const savedUser = localStorage.getItem("user");
-if (savedUser) {
-  const parsedUser = JSON.parse(savedUser);
-  initilialState.displayName = parsedUser.displayName;
-  initilialState.email = parsedUser.email;
-  initilialState.photoURL = parsedUser.photoURL;
-  initilialState.uid = parsedUser.uid;
-}
+
 
 const userSlice = createSlice({
   name: "user",
-  initialState: initilialState,
+  initialState,
   reducers: {
     login: (state, action) => {
       state.displayName = action.payload.displayName;

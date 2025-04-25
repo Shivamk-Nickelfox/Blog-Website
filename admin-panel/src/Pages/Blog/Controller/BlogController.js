@@ -1,11 +1,11 @@
 import { createBlog } from "../Model/BlogModel";
 
-export const publishBlog = async (title, content, user) => {
-  if (!title || !content) {
-    throw new Error("Title and content are required");
+export const publishBlog = async (title, content, user, thumbnailURL = "") => {
+  if (!title || !content || !thumbnailURL) {
+    throw new Error("Title , content and thumbnail are required");
   }
   if (!user) {
     throw new Error("User not authenticated");
   }
-  return await createBlog(title, content, user);
+  return await createBlog(title, content, user, thumbnailURL);
 };

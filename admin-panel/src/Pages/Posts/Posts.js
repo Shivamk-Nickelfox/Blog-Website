@@ -62,8 +62,8 @@ const Posts = () => {
     };
     fetchPosts();
   }, []);
-console.log("Posts: ", posts);
-console.log("Count: ", count);
+  console.log("Posts: ", posts);
+  console.log("Count: ", count);
   const generateSlug = (title) =>
     title
       .toLowerCase()
@@ -87,7 +87,7 @@ console.log("Count: ", count);
     console.log(
       `User requested page number ${event.selected}, which is offset ${newOffset}`
     );
-    
+
     setItemOffset(newOffset);
   };
   const currentItems = posts.slice(itemOffset, itemOffset + itemsPerPage);
@@ -95,10 +95,11 @@ console.log("Count: ", count);
   const pageCount = Math.ceil(count / itemsPerPage);
 
   const handleEdit = () => {
-    alert(`Edit post with ID: ${selectedPostId}`);
+    if (selectedPostId) {
+      navigate(`/Posts/Edit/${selectedPostId}`);
+    }
     handleMenuClose();
   };
-
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "blogs", id));

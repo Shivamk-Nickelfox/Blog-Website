@@ -21,9 +21,7 @@ export default function Login() {
       dispatch(login(userData));
       console.log("user logged in", store.getState());
 
-      // Save user data to local storage
-      // This is optional, as we are already using Redux to manage user state
-      // You can remove this if you don't need it
+     
       localStorage.setItem("user", JSON.stringify(userData));
       console.log("User logged in:", userData);
       navigate("/dashboard");

@@ -5,7 +5,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 import {
   SidebarContainer,
   SidebarList,
-  SidebarItemButton,  // Corrected import
+  SidebarItemButton,  
   SidebarListItemIcon,
 } from "./SidebarStyles";
 import { ListItemText } from "@mui/material";
@@ -19,7 +19,7 @@ const Sidebar = () => {
     <SidebarContainer>
       <SidebarList>
         <SidebarItemButton
-          isActive={isDashboardActive}  // Pass isActive prop here
+          isActive={isDashboardActive}  
           component={Link}
           to="/dashboard"
         >
@@ -36,7 +36,7 @@ const Sidebar = () => {
         </SidebarItemButton>
 
         <SidebarItemButton
-          isActive={isActive}  // Pass isActive prop here
+          isActive={isActive}  
           component={Link}
           to="/posts"
         >

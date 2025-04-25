@@ -6,6 +6,7 @@ import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import theme from "./theme";
+import { persistor } from "./redux/store";
 import { ThemeProvider } from "@emotion/react";
 import store from "./redux/store";
 import { CssBaseline } from "@mui/material";

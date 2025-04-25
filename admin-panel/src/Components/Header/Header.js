@@ -11,7 +11,7 @@ import {
   AvatarBox,
 } from "./HeaderStyles";
 import { useDispatch } from "react-redux";
-import { logout } from "../../redux/userSlice";
+import { logout } from "../../redux/Slice/userSlice";
 const Header = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();

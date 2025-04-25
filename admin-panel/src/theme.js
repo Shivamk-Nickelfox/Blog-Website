@@ -61,11 +61,11 @@ const theme = createTheme({
     button: { textTransform: 'none', fontWeight: 600 }
   },
 
-  spacing: 8,          // so theme.spacing(2) === 16px
+  spacing: 8,          
   shape: { borderRadius: 8 },
 
   components: {
-    // inject global body background
+    
     MuiCssBaseline: {
       styleOverrides: {
         body: {
@@ -74,7 +74,6 @@ const theme = createTheme({
         }
       }
     },
-    // remove default AppBar shadow, add nice divider
     MuiAppBar: {
       styleOverrides: {
         root: {
@@ -83,7 +82,6 @@ const theme = createTheme({
         }
       }
     },
-    // globally round all Buttons
     MuiButton: {
       styleOverrides: {
         root: {

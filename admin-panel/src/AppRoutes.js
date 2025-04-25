@@ -7,11 +7,13 @@ import Posts from "./Pages/Posts/Posts";
 import Dashboard from "./Pages/Dashboard";
 import Contact from "./Pages/Contact";
 import Login from "./auth/Login";
+import EditBlog from "./Pages/Posts/EditBlog";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/posts/edit/:postId" element={<EditBlog />} />
       <Route path="/" element={<Layout />}>
         <Route index element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />

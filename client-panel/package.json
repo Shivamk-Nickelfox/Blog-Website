@@ -19,9 +19,12 @@
     "@mui/x-data-grid": "^8.0.0",
     "@mui/x-date-pickers": "^8.0.0",
     "firebase": "^11.6.0",
+    "framer-motion": "^12.9.1",
     "next": "15.3.0",
     "next-transpile-modules": "^10.0.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-infinite-scroll-component": "^6.1.0",
+    "string-strip-html": "^13.4.12"
   }
 }

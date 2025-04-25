@@ -14,6 +14,7 @@ import BlogToolbar from "./BlogToolbar";
 const Blog = () => {
   const [user, setUser] = useState(null);
   const [title, setTitle] = useState("");
+  const [thumbnailURL, setThumbnailURL] = useState(null);
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -22,7 +23,7 @@ const Blog = () => {
         types: ["heading", "paragraph"],
       }),
     ],
-    content: "<p></p>",
+    content: " ",
   });
 
   useEffect(() => {
@@ -43,25 +44,28 @@ const Blog = () => {
     }
 
     const content = editor.getHTML();
-    
 
     try {
-      await publishBlog( title, content, user);
+      await publishBlog(title, content, user, thumbnailURL);
       console.log("Blog published successfully");
       alert("Blog published successfully");
       setTitle("");
       editor.commands.clearContent();
+      setThumbnailURL(null);
     } catch (error) {
       console.error("Error publishing blog:", error);
     }
   };
 
   return (
-    <Box p={3} sx={{
-      bgcolor: 'background.paper',
-      color:   'text.primary'
-    }}>
-      <Typography variant="h4" gutterBottom >
+    <Box
+      p={3}
+      sx={{
+        bgcolor: "background.paper",
+        color: "text.primary",
+      }}
+    >
+      <Typography variant="h4" gutterBottom>
         Add Blog
       </Typography>
       <TextField
@@ -72,16 +76,41 @@ const Blog = () => {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         sx={{
-          bgcolor:        'secondary.light',
-          borderRadius:   2
+          borderRadius: 2,
         }}
       />
-      <BlogToolbar editor={editor} />
-      <Box border={1} p={2} sx={{ minHeight: 200, mb: 2 }}>
+      <TextField
+        label="Thumbnail URL"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={thumbnailURL}
+        onChange={(e) => setThumbnailURL(e.target.value)}
+        sx={{
+          borderRadius: 2,
+          marginBottom: 3,
+        }}
+      />
+      {thumbnailURL && (
+        <Box mt={1}>
+          <img
+            src={thumbnailURL}
+            alt="Thumbnail Preview"
+            style={{ maxWidth: "100%", maxHeight: 200, borderRadius: 8 }}
+          />
+        </Box>
+      )}
+
+      <Box
+        border={1}
+        p={2}
+        sx={{ minHeight: 200, mb: 2, borderRadius: 2, alignItems: "center" }}
+      >
+        <BlogToolbar editor={editor} />
         <EditorContent editor={editor} />
       </Box>
       <Button variant="contained" color="primary" onClick={handlePublish}>
-        Publish
+        PublishDocs
       </Button>
     </Box>
   );

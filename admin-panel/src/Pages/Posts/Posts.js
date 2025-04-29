@@ -16,6 +16,7 @@ import "./Components/Pagination.css";
 import AddIcon from "@mui/icons-material/Add";
 import ReactPaginate from "react-paginate";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   collection,
   getDocs,
@@ -105,7 +106,7 @@ const Posts = () => {
       await deleteDoc(doc(db, "blogs", id));
       setPosts(posts.filter((post) => post.id !== id));
       setCount((prev) => prev - 1);
-      alert("Post deleted successfully!");
+      toast.success("Post deleted successfully!");
     } catch (error) {
       console.error("Error deleting document: ", error);
     }

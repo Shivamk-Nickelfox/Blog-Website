@@ -11,8 +11,9 @@ import { stripHtml } from "string-strip-html";
 
 export default function HomePage() {
   const [blogs, setBlogs] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(2);
+  const [visibleCount, setVisibleCount] = useState(4);
   const router = useRouter();
+
   useEffect(() => {
     const fetchBlogs = async () => {
       const blogquery = query(
@@ -35,97 +36,111 @@ export default function HomePage() {
   }, []);
 
   const handleLoadMore = () => {
-    setVisibleCount((prevCount) => prevCount + 2);
+    setVisibleCount((prevCount) => prevCount + 4);
   };
+
   const visibleBlogs = blogs.slice(0, visibleCount);
 
   return (
-    <main style={{ maxWidth: "1024px", margin: "0 auto", padding: "1rem" }}>
-      <motion.div
-        animate={{
-          x: [0, 10, -10, 0],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+    <main style={{ maxWidth: "100%", margin: "0 auto", padding: "2rem" }}>
+      <Typography
+        variant="h3"
+        fontWeight="500"
+        fontFamily={"birthstone"}
+        gutterBottom
+        align="center"
+        sx={{ fontFamily: "Poppins, sans-serif" }}
       >
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          gutterBottom
-          align="center"
-          sx={{
-            fontFamily: "Poppins, sans-serif",
-          }}
-        >
-          Blogs
-        </Typography>
-      </motion.div>
+        Blogs
+      </Typography>
+
       {blogs.length === 0 ? (
         <Typography>Loading blogs...</Typography>
       ) : (
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "24px",
-            justifyContent: "center",
-            borderRadius: "12px",
-          }}
-        >
-          {visibleBlogs.map((blog) => (
-            <motion.div
-              key={blog.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              whileHover={{
-                scale: 1.02,
-                boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.2)",
-              }}
-            >
-              <Card
-                key={blog.id}
-                onClick={() => router.push(`/blog/${blog.id}`)}
-                elevation={3}
-                style={{
-                  width: "300px",
-                  cursor: "pointer",
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                }}
-              >
-                {blog.thumbnailURL && (
-                  <img
-                    src={blog.thumbnailURL}
-                    alt="Blog Thumbnail"
-                    style={{
-                      width: "100%",
-                      height: "200px",
-                      objectFit: "cover",
-                    }}
-                  />
-                )}
-                <CardContent>
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight="600"
-                    gutterBottom
-                    style={{ color: "#333" }}
-                  >
-                    {blog.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {stripHtml(blog?.content || "").result.slice(0, 100) +
-                      "..."}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+        <>
+          {Array.from({ length: Math.ceil(visibleBlogs.length / 4) }).map(
+            (_, rowIndex) => {
+              const rowBlogs = visibleBlogs.slice(
+                rowIndex * 4,
+                rowIndex * 4 + 4
+              );
+              return (
+                <div
+                  key={rowIndex}
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    gap: "24px",
+                    marginBottom: "24px",
+                  }}
+                >
+                  {rowBlogs.map((blog) => (
+                    <motion.div
+                      key={blog.id}
+                      style={{
+                        flex: "1 1 calc(25% - 24px)",
+                        minWidth: "250px",
+                        maxWidth: "300px",
+                      }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <Card
+                        onClick={() =>
+                          router.push(`/blog/${encodeURIComponent(blog.title)}`)
+                        }
+                        elevation={3}
+                        style={{
+                          width: "100%",
+                          minHeight: "100%",
+                          cursor: "pointer",
+                          borderRadius: "12px",
+                          overflow: "hidden",
+                          padding: "0.5rem",
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        {blog.thumbnailURL && (
+                          <img
+                            src={blog.thumbnailURL}
+                            alt="Blog Thumbnail"
+                            style={{
+                              width: "100%",
+                              height: "200px",
+                              objectFit: "cover",
+                              borderRadius: "8px",
+                            }}
+                          />
+                        )}
+                        <CardContent style={{ flexGrow: 1 }}>
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight="600"
+                            gutterBottom
+                            style={{ color: "#333" }}
+                          >
+                            {blog.title}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {stripHtml(blog?.content || "").result.slice(
+                              0,
+                              100
+                            ) + "..."}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              );
+            }
+          )}
+        </>
+        
       )}
 
       {visibleCount < blogs.length && (
@@ -135,7 +150,7 @@ export default function HomePage() {
             style={{
               padding: "0.5rem 1.25rem",
               borderRadius: "6px",
-              backgroundColor: "#654321",
+              backgroundColor: "darkred",
               color: "white",
               border: "none",
               cursor: "pointer",
@@ -146,6 +161,20 @@ export default function HomePage() {
           </button>
         </div>
       )}
+
+      {/* Inline responsive styles */}
+      <style jsx>{`
+        @media (max-width: 1024px) {
+          div[style*="display: flex"] > div {
+            flex: 1 1 calc(50% - 24px) !important;
+          }
+        }
+        @media (max-width: 600px) {
+          div[style*="display: flex"] > div {
+            flex: 1 1 100% !important;
+          }
+        }
+      `}</style>
     </main>
   );
 }

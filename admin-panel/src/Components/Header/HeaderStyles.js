@@ -48,5 +48,4 @@ export const AvatarBox = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
   padding: theme.spacing(1),
   borderRadius: theme.shape.borderRadius * 2,
-  backgroundColor: theme.palette.secondary.light,
 }));

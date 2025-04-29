@@ -11,7 +11,7 @@ import { ThemeProvider } from "@emotion/react";
 import store from "./redux/store";
 import { CssBaseline } from "@mui/material";
 import { PersistGate } from "redux-persist/integration/react";
-
+import { ToastContainer } from "react-toastify";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
@@ -19,6 +19,18 @@ root.render(
       <Provider store={store}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
+          <ToastContainer
+            position="top-right"
+            autoClose={2000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
           <PersistGate loading={null} persistor={persistor}>
             <App />
           </PersistGate>

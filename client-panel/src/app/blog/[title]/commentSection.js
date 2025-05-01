@@ -1,6 +1,7 @@
 "use client";
 
 import { TextField, Typography, Button, Card } from "@mui/material";
+import emailjs from "@emailjs/browser";
 import { useState, useEffect } from "react";
 import { db } from "@/app/firebase/config";
 import {
@@ -16,20 +17,35 @@ import {
 export default function CommentSection({ blogTitle }) {
   const [comment, setComment] = useState("");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [comments, setComments] = useState([]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!comment.trim() || !name.trim()) return;
 
     await addDoc(collection(db, "comments"), {
       blogTitle,
       name,
+      email,
+
       comment,
       createdAt: serverTimestamp(),
     });
-
+    emailjs
+      .send(
+        "service_bswy0ge",
+        "template_57r0e7g",
+        {
+          name: name,
+          email: email,
+        },
+        "umJf_IjYrmXk2dBXI"
+      )
+      .then((err) => console.error("EmailJS Error:", err));
     setComment("");
     setName("");
+    setEmail("");
     fetchComments();
   };
 
@@ -66,7 +82,7 @@ export default function CommentSection({ blogTitle }) {
           }}
         >
           <Typography variant="subtitle2" marginLeft={2}>
-            {c.name} — {c.createdAt?.toDate().toLocaleString()}
+            {c.name} on {c.createdAt?.toDate().toLocaleString()}
           </Typography>
           <Typography marginLeft={2}>{c.comment}</Typography>
         </Card>
@@ -80,6 +96,13 @@ export default function CommentSection({ blogTitle }) {
         margin="normal"
         value={name}
         onChange={(e) => setName(e.target.value)}
+      />
+      <TextField
+        label="Your Email"
+        fullWidth
+        margin="normal"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
       />
       <TextField
         label="Add a Comment"

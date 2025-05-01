@@ -58,6 +58,7 @@ const Header = () => {
             <AvatarBox>
               <Avatar
                 src={user.photoURL}
+                style={{ cursor: "pointer" }}
                 onClick={() => navigate("/dashboard")}
               />
             </AvatarBox>

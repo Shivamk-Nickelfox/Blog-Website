@@ -1,14 +1,25 @@
 "use client";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { useState, useMemo, createContext, useContext } from "react";
+import getTheme from "./theme/theme";
 
-import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import theme from "./theme/theme"; // adjust path to where your theme lives
+const ThemeContext = createContext();
 
 export function Providers({ children }) {
+  const [darkMode, setDarkMode] = useState(false);
+  const theme = useMemo(
+    () => getTheme(darkMode ? "dark" : "light"),
+    [darkMode]
+  );
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {children}
-    </ThemeProvider>
+    <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </ThemeProvider>
+    </ThemeContext.Provider>
   );
 }
+
+export const useThemeMode = () => useContext(ThemeContext);

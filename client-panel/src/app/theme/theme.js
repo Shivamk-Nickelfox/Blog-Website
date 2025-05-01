@@ -1,13 +1,14 @@
 import { createTheme } from "@mui/material/styles";
 
-const theme = createTheme({
+const getTheme = (mode) => createTheme({
   palette: {
+    mode,
     background: {
-      default: "#ffffff",
-      paper: "#ffffff",
+      default: mode === 'dark' ? "#121212" : "#ffffff",
+      paper: mode === 'dark' ? "#1e1e1e" : "#ffffff",
     },
     text: {
-      primary: "#001858",
+      primary: mode === 'dark' ? "#ffffff" : "#001858",
     },
     primary: {
       main: "#8bd3dd",
@@ -18,4 +19,4 @@ const theme = createTheme({
   },
 });
 
-export default theme;
+export default getTheme;

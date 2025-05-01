@@ -6,7 +6,14 @@ import { TextField, Button, Typography } from "@mui/material";
 import { toast } from "react-toastify";
 import ImageIcon from "@mui/icons-material/Image";
 import IconButton from "@mui/material/IconButton";
-
+import { Box } from "@mui/system";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import TextAlign from "@tiptap/extension-text-align";
+import CustomImage from "../Blog/Components/CustomImage"; // Adjust path if needed
+import BlogToolbar from "../Blog/Components/BlogToolbar";
+import { EditorContent } from "@tiptap/react";
 const EditBlog = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
@@ -15,6 +22,24 @@ const EditBlog = () => {
   const [error, setError] = useState(null);
   const fileInputRef = React.useRef(null);
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      CustomImage.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          style:
+            'style="max-width: 120px; max-height: 120px; width: auto; height: auto; border-radius: 50%;',
+        },
+      }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+    ],
+    content: " ",
+  });
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -23,6 +48,9 @@ const EditBlog = () => {
 
         if (docSnap.exists()) {
           setPost(docSnap.data());
+          if (editor) {
+            editor.commands.setContent(docSnap.data().content || "");
+          }
         } else {
           setError("Post not found");
         }
@@ -33,47 +61,47 @@ const EditBlog = () => {
     };
 
     fetchPost();
-  }, [postId]);
+  }, [postId, editor]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPost((prevPost) => ({ ...prevPost, [name]: value }));
   };
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result;
+  // const handleImageUpload = (event) => {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onload = () => {
+  //       const base64 = reader.result;
 
-        // Check if there's already an image in the content
-        const hasImage = /<img[^>]*src="([^"]+)"[^>]*>/.test(post.content);
+  //       // Check if there's already an image in the content
+  //       const hasImage = /<img[^>]*src="([^"]+)"[^>]*>/.test(post.content);
 
-        let updatedContent;
-        if (hasImage) {
-          // If there's an image, replace the first one
-          updatedContent = post.content.replace(
-            /<img[^>]+src="([^"]+)"[^>]*>/, // Match the first image
-            `<img src="${base64}" style="max-width: 120px; max-height: 120px; width: auto; height: auto; border-radius: 50%;" />` // Replace with new image base64
-          );
-        } else {
-          // If no image exists, add the new image to the content at the beginning or wherever you prefer
-          updatedContent =
-            post.content +
-            `<img src="${base64}" style="max-width: 120px; max-height: 120px; width: auto; height: auto; border-radius: 50%;" />`; // Append at the end
-        }
+  //       let updatedContent;
+  //       if (hasImage) {
+  //         // If there's an image, replace the first one
+  //         updatedContent = post.content.replace(
+  //           /<img[^>]+src="([^"]+)"[^>]*>/, // Match the first image
+  //           `<img src="${base64}" style="max-width: 120px; max-height: 120px; width: auto; height: auto; border-radius: 50%;" />` // Replace with new image base64
+  //         );
+  //       } else {
+  //         // If no image exists, add the new image to the content at the beginning or wherever you prefer
+  //         updatedContent =
+  //           post.content +
+  //           `<img src="${base64}" style="max-width: 120px; max-height: 120px; width: auto; height: auto; border-radius: 50%;" />`; // Append at the end
+  //       }
 
-        setPost((prevPost) => ({ ...prevPost, content: updatedContent }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  //       setPost((prevPost) => ({ ...prevPost, content: updatedContent }));
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
   const handleSave = async () => {
     try {
       const docRef = doc(db, "blogs", postId);
       await updateDoc(docRef, {
         title: post.title,
-        content: post.content,
+        content: editor?.getHTML() || "",
       });
       toast.success("Post updated successfully!");
       navigate("/Posts");
@@ -87,8 +115,8 @@ const EditBlog = () => {
   if (error) return <Typography color="error">{error}</Typography>;
 
   return (
-    <div>
-      <Typography variant="h3" alignItems={"center"}>
+    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+      <Typography variant="h3" alignItems={"center"} gutterBottom>
         Edit Post
       </Typography>
       <TextField
@@ -98,8 +126,21 @@ const EditBlog = () => {
         onChange={handleChange}
         fullWidth
         margin="normal"
+        style={{ marginBottom: "20px" }}
       />
-      <TextField
+      <Box>
+        <BlogToolbar style={{ marginBottom: "20px" }} editor={editor} />
+        <EditorContent
+          style={{
+            marginBottom: "20px",
+            border: "1px solid #ccc",
+            padding: "10px",
+            borderRadius: "10px",
+          }}
+          editor={editor}
+        />
+      </Box>
+      {/* <TextField
         label="Content"
         name="content"
         value={post.content}
@@ -108,17 +149,17 @@ const EditBlog = () => {
         margin="normal"
         multiline
         rows={6}
-      />
-      <IconButton onClick={() => fileInputRef.current.click()}>
+      /> */}
+      {/* <IconButton onClick={() => fileInputRef.current.click()}>
         <ImageIcon />
-      </IconButton>
-      <input
+      </IconButton> */}
+      {/* <input
         type="file"
         accept="image/*"
         onChange={handleImageUpload}
         style={{ display: "none" }}
         ref={fileInputRef}
-      />
+      /> */}
       <Button variant="contained" color="primary" onClick={handleSave}>
         Save Changes
       </Button>

@@ -12,8 +12,11 @@ import {
   TableRow,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import "./Components/Pagination.css";
 import AddIcon from "@mui/icons-material/Add";
+import ReactPaginate from "react-paginate";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   collection,
   getDocs,
@@ -34,29 +37,34 @@ const Posts = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [count, setCount] = useState(0);
+  const [itemOffset, setItemOffset] = useState(0);
+  const itemsPerPage = 5;
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPosts = async () => {
       if (!user || !user.uid) return;
       try {
-        const postsRef = collection(db, "posts");
-        const q = query(postsRef, where("userId", "==", user.uid));
+        const postsRef = collection(db, "blogs");
+        const q = query(postsRef, where("authorId", "==", user.uid));
         const querySnapshot = await getDocs(q);
-        setCount(querySnapshot.size);
+        setCount(querySnapshot.docs.length);
         const blogs = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
           slug: generateSlug(doc.data().title),
         }));
         setPosts(blogs);
+
+        console.log("Fetched posts: ", blogs);
       } catch (error) {
         console.error("Error fetching blogs:", error);
       }
     };
     fetchPosts();
   }, []);
-
+  console.log("Posts: ", posts);
+  console.log("Count: ", count);
   const generateSlug = (title) =>
     title
       .toLowerCase()
@@ -75,17 +83,30 @@ const Posts = () => {
     setSelectedPostId(null);
   };
 
+  const handlePageClick = (event) => {
+    const newOffset = (event.selected * itemsPerPage) % count;
+    console.log(
+      `User requested page number ${event.selected}, which is offset ${newOffset}`
+    );
+
+    setItemOffset(newOffset);
+  };
+  const currentItems = posts.slice(itemOffset, itemOffset + itemsPerPage);
+  console.log("Current items: ", currentItems);
+  const pageCount = Math.ceil(count / itemsPerPage);
+
   const handleEdit = () => {
-    alert(`Edit post with ID: ${selectedPostId}`);
+    if (selectedPostId) {
+      navigate(`/Posts/Edit/${selectedPostId}`);
+    }
     handleMenuClose();
   };
-
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "blogs", id));
       setPosts(posts.filter((post) => post.id !== id));
       setCount((prev) => prev - 1);
-      alert("Post deleted successfully!");
+      toast.success("Post deleted successfully!");
     } catch (error) {
       console.error("Error deleting document: ", error);
     }
@@ -118,14 +139,14 @@ const Posts = () => {
             </TableRow>
           </StyledTableHead>
           <TableBody>
-            {posts.length === 0 ? (
+            {currentItems.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} align="center">
                   No posts available.
                 </TableCell>
               </TableRow>
             ) : (
-              posts.map((post, index) => (
+              currentItems.map((post, index) => (
                 <TableRow key={post.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{post.title}</TableCell>
@@ -151,6 +172,18 @@ const Posts = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <ReactPaginate
+        breakLabel={"..."}
+        nextLabel={"next >"}
+        onPageChange={handlePageClick}
+        pageRangeDisplayed={5}
+        pageCount={pageCount}
+        previousLabel={"< previous"}
+        renderOnZeroPageCount={null}
+        containerClassName={"pagination"}
+        activeClassName={"active"}
+        disabledClassName={"disabled"}
+      />
     </RootBox>
   );
 };

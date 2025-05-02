@@ -1,12 +1,20 @@
+// src/components/Layout/Layout.jsx
 import React from "react";
-import Sidebar from "../Sidebar/Sidebar";
 import Header from "../Header/Header";
+import Sidebar from "../Sidebar/Sidebar";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
-function Layout() {
+export default function Layout() {
   return (
-    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "background.default",
+      }}
+    >
       <Header />
 
       <Box
@@ -22,7 +30,7 @@ function Layout() {
           sx={{
             flexGrow: 1,
             p: 3,
-            backgroundColor: "#f9f9f9",
+            bgcolor: "background.default",
           }}
         >
           <Outlet />
@@ -31,5 +39,3 @@ function Layout() {
     </Box>
   );
 }
-
-export default Layout;

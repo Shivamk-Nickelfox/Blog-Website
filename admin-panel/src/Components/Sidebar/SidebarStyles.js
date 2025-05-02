@@ -1,16 +1,11 @@
+// src/components/Sidebar/Sidebar.styled.js
 import { styled } from "@mui/material/styles";
-import {
-  Box,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  
-} from "@mui/material";
+import { Box, List, ListItemButton, ListItemIcon } from "@mui/material";
 
 export const SidebarContainer = styled(Box)(({ theme }) => ({
-  width: "200px",
-  backgroundColor: "#fff",
-  borderRight: "1px solid #ddd",
+  width: 200,
+  backgroundColor: theme.palette.background.paper,
+  borderRight: `1px solid ${theme.palette.divider}`,
   height: "100%",
   paddingTop: theme.spacing(2),
   [theme.breakpoints.down("md")]: {
@@ -25,11 +20,11 @@ export const SidebarList = styled(List)(({ theme }) => ({
 
 export const SidebarItemButton = styled(ListItemButton)(
   ({ theme, isActive }) => ({
-    backgroundColor: isActive ? "#f0f0f0" : "transparent",
+    backgroundColor: isActive ? theme.palette.action.selected : "transparent",
     "&:hover": {
-      backgroundColor: "#f0f0f0",
+      backgroundColor: theme.palette.action.hover,
     },
-    borderRadius: "12px",
+    borderRadius: theme.shape.borderRadius * 1.5,
     paddingY: theme.spacing(1),
     paddingX: theme.spacing(2),
     marginY: theme.spacing(1),
@@ -41,5 +36,5 @@ export const SidebarItemButton = styled(ListItemButton)(
 
 export const SidebarListItemIcon = styled(ListItemIcon)(({ theme }) => ({
   minWidth: "unset",
-  color: "black",
+  color: theme.palette.text.primary,
 }));

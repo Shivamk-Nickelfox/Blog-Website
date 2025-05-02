@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Avatar } from '@mui/material';
-import { auth, signOut } from '../../Firebase/config';
-import { useNavigate } from 'react-router';
+import React, { useEffect, useState } from "react";
+import { Button, Avatar } from "@mui/material";
+import { auth, signOut } from "../../Firebase/config";
+import { useNavigate } from "react-router";
 import {
   StyledAppBar,
   StyledToolbar,
@@ -9,14 +9,16 @@ import {
   NavLinks,
   UserSection,
   AvatarBox,
-} from './HeaderStyles';
-
+} from "./HeaderStyles";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/Slice/userSlice";
 const Header = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -24,21 +26,22 @@ const Header = () => {
 
   const handleLogout = () => {
     signOut(auth);
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
+    dispatch(logout());
     setUser(null);
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
     <StyledAppBar position="static" elevation={1}>
       <StyledToolbar>
         <LogoText variant="h4">
-          Shiv<span style={{ color: '#8A63D2' }}>am</span>
+          Shiv<span style={{ color: "#8A63D2" }}>am</span>
         </LogoText>
 
         <NavLinks>
-          <Button color="inherit">Home</Button>
-          <Button onClick={() => navigate('/contact')} color="inherit">
+          <Button color="primary">Home</Button>
+          <Button onClick={() => navigate("/contact")} color="primary">
             Contact Us
           </Button>
         </NavLinks>
@@ -48,14 +51,15 @@ const Header = () => {
             <Button
               variant="contained"
               onClick={handleLogout}
-              sx={{ textTransform: 'none' }}
+              sx={{ textTransform: "none" }}
             >
               Logout
             </Button>
             <AvatarBox>
               <Avatar
                 src={user.photoURL}
-                onClick={() => navigate('/dashboard')}
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate("/dashboard")}
               />
             </AvatarBox>
           </UserSection>

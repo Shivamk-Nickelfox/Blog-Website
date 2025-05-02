@@ -1,150 +1,166 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
-import { db, auth } from "../../Firebase/config";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import {
+  setContent,
+  setThumbnailURL,
+  setTitle,
+  clearBlog,
+} from "../../redux/Slice/blogSlice";
 
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { Typography, TextField, Button, Box } from "@mui/material";
+import CustomImage from "./Components/CustomImage"; // Adjust path if needed
+
 import { onAuthStateChanged } from "firebase/auth";
-
-import {
-  FormatBold as FormatBoldIcon,
-  FormatItalic as FormatItalicIcon,
-  FormatUnderlined as FormatUnderlinedIcon,
-  FormatAlignLeft as FormatAlignLeftIcon,
-  FormatAlignCenter as FormatAlignCenterIcon,
-  FormatAlignRight as FormatAlignRightIcon,
-} from "@mui/icons-material";
-
-import {
-  Box,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  Typography,
-  IconButton,
-} from "@mui/material";
-
-import {
-  EditorContainer,
-  TitleText,
-  BlogTitleInput,
-  ToolbarBox,
-  EditorContentBox,
-  PublishButton,
-} from "./BlogStyles";
-
+import { auth } from "../../Firebase/config";
+import { publishBlog } from "./Controller/BlogController";
+import BlogToolbar from "./Components/BlogToolbar";
 const Blog = () => {
-  const [title, setTitle] = useState("");
   const [user, setUser] = useState(null);
+  const [title, setTitleLocal] = useState("");
+  const [thumbnailURL, setThumbnailURLLocal] = useState(null);
+  const [content, setContentLocal] = useState("");
 
+  const dispatch = useDispatch();
   const editor = useEditor({
     extensions: [
       StarterKit,
       Underline,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      CustomImage.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          style:
+            'style="max-width: 120px; max-height: 120px; width: auto; height: auto; border-radius: 50%;',
+        },
+      }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
     ],
+    content: " ",
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
     });
+
     return () => unsubscribe();
   }, []);
-
   const handlePublish = async () => {
-    if (!title || !editor?.getHTML()) {
-      alert("Title and content are required!");
-      return;
+    if (!user) {
+      console.error("User not authenticated");
+      return toast.error("User not authenticated");
     }
+
+    const content = editor.getHTML();
+    console.log("Content:", content);
+    dispatch(setContent(content));
 
     try {
-      await addDoc(collection(db, "blogs"), {
-        title,
-        content: editor.getHTML(),
-        createdAt: Timestamp.now(),
-        authorId: user.uid,
-        authorEmail: user.email,
-      });
-      alert("Blog published!");
+      await publishBlog(title, content, user, thumbnailURL);
+      console.log("Blog published successfully");
+      toast.success("Blog published successfully");
       setTitle("");
       editor.commands.clearContent();
+      setThumbnailURLLocal(null);
+      dispatch(clearBlog());
+      editor.commands.clearContent();
     } catch (error) {
-      console.error("Error publishing blog: ", error);
-      alert("Something went wrong!");
+      console.error("Error publishing blog:", error);
+      toast.error("Error publishing blog");
     }
   };
-
-  if (!user) {
-    return (
-      <EditorContainer>
-        <Typography variant="h5">Please login to publish blogs</Typography>
-      </EditorContainer>
-    );
-  }
+  const blogState = useSelector((state) => state.blog);
+  useEffect(() => {
+    if (blogState.title) setTitleLocal(blogState.title);
+    if (blogState.thumbnailURL) setThumbnailURLLocal(blogState.thumbnailURL);
+  }, [blogState]);
+  useEffect(() => {
+    if (!editor) return;
+    editor.commands.setContent(blogState.content);
+    setContentLocal(blogState.content);
+  }, [editor, editor.content]);
+  useEffect(() => {
+    if (!editor) return;
+    editor.on("update", () => {
+      const content = editor.getHTML();
+      dispatch(setContent(content));
+    });
+  }, [editor, dispatch]);
 
   return (
-    <EditorContainer>
-      <TitleText variant="h4" gutterBottom>
+    <Box
+      p={3}
+      sx={{
+        bgcolor: "background.paper",
+        color: "text.primary",
+      }}
+    >
+      <Typography variant="h4" gutterBottom>
         Add Blog
-      </TitleText>
-
-      <BlogTitleInput
-        label="Blog Title"
+      </Typography>
+      <TextField
+        label="Title"
         variant="outlined"
         fullWidth
+        margin="normal"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e) => {
+          setTitleLocal(e.target.value);
+          dispatch(setTitle(e.target.value));
+        }}
+        sx={{
+          borderRadius: 2,
+        }}
       />
-
-      {editor && (
-        <ToolbarBox>
-          <IconButton onClick={() => editor.chain().focus().toggleBold().run()}>
-            <FormatBoldIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-          >
-            <FormatItalicIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-          >
-            <FormatUnderlinedIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          >
-            <FormatAlignLeftIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          >
-            <FormatAlignCenterIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          >
-            <FormatAlignRightIcon />
-          </IconButton>
-        </ToolbarBox>
+      <TextField
+        label="Thumbnail URL"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={thumbnailURL}
+        onChange={(e) => {
+          setThumbnailURLLocal(e.target.value);
+          dispatch(setThumbnailURL(e.target.value));
+        }}
+        sx={{
+          borderRadius: 2,
+          marginBottom: 3,
+        }}
+      />
+      {thumbnailURL && (
+        <Box mt={1}>
+          <img
+            src={thumbnailURL}
+            alt="Thumbnail Preview"
+            style={{ maxWidth: "100%", maxHeight: 200, borderRadius: 8 }}
+          />
+        </Box>
       )}
 
-      <EditorContentBox>
-        <EditorContent editor={editor} />
-      </EditorContentBox>
-
-      <PublishButton
-        variant="contained"
-        color="primary"
-        onClick={handlePublish}
+      <Box
+        border={1}
+        p={2}
+        sx={{ minHeight: 200, mb: 2, borderRadius: 2, alignItems: "center" }}
       >
-        Publish
-      </PublishButton>
-    </EditorContainer>
+        <BlogToolbar editor={editor} />
+        <EditorContent editor={editor} />
+      </Box>
+      <Button variant="contained" color="primary" onClick={handlePublish}>
+        PublishDocs
+      </Button>
+    </Box>
   );
 };
-
 export default Blog;

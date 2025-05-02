@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Avatar,
-  Stack,
-  Divider,
-} from "@mui/material";
+import { Box, Typography, Paper, Avatar, Stack, Divider } from "@mui/material";
 import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
 
 const Contact = () => {
@@ -19,11 +12,11 @@ const Contact = () => {
           maxWidth: 600,
           mx: "auto",
           borderRadius: 4,
-          backgroundColor: "#f9f9f9",
+          bgcolor: "background.default",
         }}
       >
         <Stack direction="row" alignItems="center" spacing={2} mb={2}>
-          <Avatar sx={{ bgcolor: "#6a1b9a" }}>
+          <Avatar sx={{ bgcolor: "secondary.main" }}>
             <ContactPhoneIcon />
           </Avatar>
           <Typography variant="h5" fontWeight="bold">
@@ -38,7 +31,8 @@ const Contact = () => {
             Address:
           </Typography>
           <Typography variant="body1">
-            123, Shiv Vihar Colony,<br />
+            123, Shiv Vihar Colony,
+            <br />
             Kanpur, Uttar Pradesh - 208001
           </Typography>
         </Box>
@@ -55,9 +49,10 @@ const Contact = () => {
             About Shivam Rajput:
           </Typography>
           <Typography variant="body1">
-            Shivam Rajput is a passionate developer with a love for building creative web apps.
-            He enjoys exploring new technologies and solving real-world problems through code.
-            His focus is on writing clean, maintainable code and continuously learning.
+            Shivam Rajput is a passionate developer with a love for building
+            creative web apps. He enjoys exploring new technologies and solving
+            real-world problems through code. His focus is on writing clean,
+            maintainable code and continuously learning.
           </Typography>
         </Box>
       </Paper>
